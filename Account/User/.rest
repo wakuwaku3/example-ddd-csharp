@@ -1,0 +1,10 @@
+@example_ddd_csharp_account_user_HostAddress = http://localhost:8080
+
+POST {{example_ddd_csharp_account_user_HostAddress}}/api/account/user/create
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com"
+}

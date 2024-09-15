@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+	],
+	"settings": {
+		"cSpell.ignorePaths": [
+			".git/objects",
+			".vscode",
+			".devcontainer/devcontainer.json",
+			"example-ddd-csharp.code-workspace"
+		],
+		"[markdown]": {
+			"editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+		},
+	},
+}

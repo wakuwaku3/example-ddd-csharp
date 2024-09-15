@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Contract\Example.DDD.CSharp.Shared.Contract.csproj" />
+    <ProjectReference Include="..\..\Shared\Core\Example.DDD.CSharp.Shared.Core.csproj" />
+    <ProjectReference Include="..\..\Shared\DataBase\Example.DDD.CSharp.Shared.DataBase.csproj" />
+    <ProjectReference Include="..\..\Shared\Publisher\Example.DDD.CSharp.Shared.Publisher.csproj" />
+  </ItemGroup>
+
+</Project>
