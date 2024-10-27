@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    env_file:
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - ./.env
+    volumes:
+      - ../..:/workspaces:cached
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    ports:
+      - "9089:9089"
+  test_db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${TEST_DB_PASSWORD}
+    ports:
+      - ${TEST_DB_FORWARDING_PORT}:1433
+    volumes:
+      - test_db_data:/var/opt/mssql
+volumes:
+  test_db_data:
+    driver: local

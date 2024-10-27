@@ -2,8 +2,9 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
 {
 	"name": "example-ddd-csharp code space",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -23,7 +24,8 @@
 				"EditorConfig.EditorConfig",
 				"esbenp.prettier-vscode",
 				"zoma.vscode-auto-open-workspace",
-				"humao.rest-client"
+				"humao.rest-client",
+				"dev-land.resharpervscode"
 			]
 		}
 	}
