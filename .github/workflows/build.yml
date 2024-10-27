@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/call-build-project.yml
     with:
       project: ${{ matrix.project }}
-      sha: ${{github.event.pull_request.head.sha}}
+      sha: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.pull_request.head.sha }}
     secrets: inherit
 
   build-completion:
