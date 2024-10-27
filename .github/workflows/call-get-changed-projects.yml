@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+    outputs:
+      projects:
+        description: "変更差分がある projects のリストです。"
+        value: ${{ jobs.get-changed.outputs.projects }}
+
+jobs:
+  get-changed:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          ./.github/scripts/search_projects.sh > ./projects.yaml
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: projects.yaml

@@ -1,0 +1,112 @@
+on:
+  workflow_call:
+    inputs:
+      sha:
+        description: "SHA of the commit to test"
+        required: true
+        default: ${{ github.sha }}
+        type: string
+      project:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: build-${{ inputs.project }}-${{ inputs.sha }}
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      project_dir: ${{ steps.compute.outputs.project_dir }}
+      artifcat_name: ${{ steps.compute.outputs.artifact_name }}
+    steps:
+      - id: compute
+        run: |
+          project_dir=$(dirname ${{ inputs.project }})
+          echo "project_dir=$project_dir"
+          echo "project_dir=$project_dir" >> $GITHUB_OUTPUT
+          artifact_name=build-$(echo ${{ inputs.project }} | tr '/' '.')-${{ inputs.sha }}
+          echo "artifact_name=$artifact_name"
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+  check-artifact:
+    runs-on: ubuntu-latest
+    needs: prepare
+    outputs:
+      artifact-exists: ${{ steps.check.outputs.artifact-exists }}
+    steps:
+      - name: Check if artifact exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          response=$(gh api -H "Accept: application/vnd.github.v3+json" repos/${{ github.repository }}/actions/artifacts?name=${{ needs.prepare.outputs.artifcat_name }})
+          echo "Response from GitHub API:"
+          echo $response
+
+          set +e
+          jq_result=$(echo $response | jq -e '.total_count')
+          jq_exit_status=$?
+          echo "JQ Exit Status:"
+          echo $jq_exit_status
+          set -e
+          echo "JQ Result:"
+          echo $jq_result
+
+            if [ $jq_exit_status -eq 0 ] && [ "$jq_result" -ge 1 ]; then
+            echo "artifact-exists=true"
+            echo "artifact-exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "artifact-exists=false"
+            echo "artifact-exists=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - check-artifact
+    if: needs.check-artifact.outputs.artifact-exists == 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            ${{ needs.prepare.outputs.project_dir }}/bin
+            ${{ needs.prepare.outputs.project_dir }}/obj
+          key: ${{ runner.os }}-dotnet-${{ hashFiles(inputs.project) }}
+      - name: Run build in dev container
+        uses: devcontainers/ci@v0.3
+        with:
+          cacheFrom: ghcr.io/wakuwaku3/example-ddd-csharp/devcontainer
+          imageName: ghcr.io/wakuwaku3/example-ddd-csharp/devcontainer
+          runCmd: |
+            cd ${{ needs.prepare.outputs.project_dir }}
+            dotnet restore
+            # release ビルドを実行する
+            dotnet build -c Release
+            # inputs.project の sufix が .Tests.csproj の場合、追加でテストを実行する
+            if [[ ${{ inputs.project }} == *".Tests.csproj" ]]; then
+              dotnet test
+            fi
+      - name: Save cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            ${{ needs.prepare.outputs.project_dir }}/bin
+            ${{ needs.prepare.outputs.project_dir }}/obj
+          key: ${{ runner.os }}-dotnet-${{ hashFiles(inputs.project) }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.artifcat_name }}
+          path: ${{ needs.prepare.outputs.project_dir }}/bin/Release/
+          retention-days: 30
+          if-no-files-found: error

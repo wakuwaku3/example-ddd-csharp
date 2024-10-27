@@ -25,7 +25,8 @@
 				"esbenp.prettier-vscode",
 				"zoma.vscode-auto-open-workspace",
 				"humao.rest-client",
-				"dev-land.resharpervscode"
+				"dev-land.resharpervscode",
+				"github.vscode-github-actions"
 			]
 		}
 	}
