@@ -31,6 +31,7 @@ jobs:
             echo "artifact-exists=true" >> $GITHUB_ENV
           else
             echo "artifact-exists=false" >> $GITHUB_ENV
+          fi
 
   build:
     runs-on: ubuntu-latest
