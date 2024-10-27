@@ -6,7 +6,10 @@ on:
 concurrency:
   cancel-in-progress: true
   group: build-${{ github.ref_name }}
-
+permissions:
+  contents: read
+  packages: write
+  id-token: write
 jobs:
   get-changed-projects:
     uses: ./.github/workflows/call-get-changed-projects.yml
