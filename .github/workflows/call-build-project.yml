@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Check if artifact exists
         id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts | jq -e '.artifacts[] | select(.name == "build-${{ inputs.project }}-${{ inputs.sha }}")' > /dev/null; then
             echo "artifact-exists=true" >> $GITHUB_ENV
